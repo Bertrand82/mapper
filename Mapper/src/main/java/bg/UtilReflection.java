@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import bg.test.p1.AbstractVehicule;
+
 
 /**
  * @author c82bgui
@@ -19,14 +19,7 @@ import bg.test.p1.AbstractVehicule;
  */
 public class UtilReflection {
 
-    public static void main(final String[] a) {
-        final List<Class> list = getSubClasses(AbstractVehicule.class);
-        System.out.println("list1 :" + list.size());
-        final List<Class> list2 = getClassesChildreen(AbstractVehicule.class);
-        System.out.println("list2 :" + list2.size());
-        
-    }
-
+  
     /**
      * @param pClazz1
      * @return

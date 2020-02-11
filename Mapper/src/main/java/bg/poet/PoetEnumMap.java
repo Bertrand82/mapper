@@ -10,7 +10,6 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-import bg.test.enump.COUNTRY;
 
 public class PoetEnumMap {
 	Field field;
