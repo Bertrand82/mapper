@@ -1,3 +1,4 @@
+
 package bg.poet;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class PoetAbstract {
 		if (isAbstract) {
 			List<Class> sc1 = UtilReflection.getClassesChildreen(clazz1);
 			List<Class> sc2 = UtilReflection.getClassesChildreen(clazz2);
-			System.out.println("childreen size "+sc1.size());
+			System.out.println("childreen size " + sc1.size());
 			for (Class c1 : sc1) {
 				Class c2 = getClassBySimpleName(c1.getSimpleName(), sc2);
 				ClassCouple cc = new ClassCouple(c1, c2);
@@ -65,15 +66,15 @@ public class PoetAbstract {
 
 	public String geNameClassAstractCustom2(String s) {
 		if (s == null) {
-			s ="";
+			s = "";
 		}
-		
+
 		if (isAbstract) {
 			if (!s.trim().isEmpty()) {
-				s +=",";
+				s += ",";
 			}
-			s += getNameClassCustom()+".class";
-		} 
+			s += getNameClassCustom() + ".class";
+		}
 		return s;
 	}
 
@@ -84,48 +85,30 @@ public class PoetAbstract {
 
 	public JavaFile getJavaFile() {
 
-		
-		TypeSpec.Builder typeBuilder = TypeSpec
-				  .classBuilder(getNameClassCustom())
-				  .addModifiers(Modifier.PUBLIC);
-				  
-		for (ClassCouple cc :listClassesCouple) {
-			ClassName className = ClassName.get("com.bg.generted", cc.c1.getSimpleName()+"Mapper");
-			FieldSpec mapper = FieldSpec
-					  .builder(className, cc.c1.getSimpleName().toLowerCase()+"Mapper")
-					  .addModifiers(Modifier.PRIVATE)
-					  .initializer(" $T.builder($T.class).build()",Selma.class,className)
-					  .build();
-			typeBuilder.addField(mapper);
-		}	  
-			MethodSpec.Builder methode1b = MethodSpec
-				    .methodBuilder("as"+clazz1 .getSimpleName())
-				    .addParameter(clazz2, "o")
-				    .addModifiers(Modifier.PUBLIC)
-				    .returns(clazz1)
-				    .addStatement("if (o == null) return null;");
-					for (ClassCouple cc :listClassesCouple) {
-						methode1b.addStatement("if (o instanceof "+cc.c2.getName()+") return "+cc.c2.getSimpleName().toLowerCase()+"Mapper.map(($T)o)"+";",cc.c2);
-					}
-					methode1b.addStatement("return null");
-			MethodSpec  methode1 =methode1b.build();
-			        MethodSpec.Builder methode2b = MethodSpec
-				    .methodBuilder("as"+clazz2.getSimpleName())
-				    .addParameter(clazz1, "o")
-				    .addModifiers(Modifier.PUBLIC)
-				    .returns(clazz2)
-				    .addStatement("return null");
-			        MethodSpec  methode2 =methode2b.build();
+		TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(getNameClassCustom()).addModifiers(Modifier.PUBLIC);
 
-			typeBuilder.addMethod(methode1);
-			typeBuilder.addMethod(methode2);
-	
+		for (ClassCouple cc : listClassesCouple) {
+			ClassName className = ClassName.get("com.bg.generted", cc.c1.getSimpleName() + "Mapper");
+			FieldSpec mapper = FieldSpec.builder(className, cc.c1.getSimpleName().toLowerCase() + "Mapper").addModifiers(Modifier.PRIVATE).initializer(" $T.builder($T.class).build()", Selma.class, className).build();
+			typeBuilder.addField(mapper);
+		}
+		MethodSpec.Builder methode1b = MethodSpec.methodBuilder("as" + clazz1.getSimpleName()).addParameter(clazz2, "o").addModifiers(Modifier.PUBLIC).returns(clazz1).addStatement("if (o == null) return null;");
+		for (ClassCouple cc : listClassesCouple) {
+			methode1b.addStatement("if (o instanceof " + cc.c2.getName() + ") return " + cc.c2.getSimpleName().toLowerCase() + "Mapper.map(($T)o)" + ";", cc.c2);
+		}
+		methode1b.addStatement("return null");
+		MethodSpec methode1 = methode1b.build();
+		MethodSpec.Builder methode2b = MethodSpec.methodBuilder("as" + clazz2.getSimpleName()).addParameter(clazz1, "o").addModifiers(Modifier.PUBLIC).returns(clazz2).addStatement("return null");
+		MethodSpec methode2 = methode2b.build();
+
+		typeBuilder.addMethod(methode1);
+		typeBuilder.addMethod(methode2);
+
 		TypeSpec customClassMapper = typeBuilder.build();
 		final JavaFile javaFile = JavaFile.builder("com.bg.generted", customClassMapper).indent("    ").build();
-        return javaFile;
+		return javaFile;
 	}
-	
-	
+
 	public String getName() {
 		return clazz1.getSimpleName();
 	}

@@ -1,3 +1,4 @@
+
 package bg;
 
 import java.io.File;
@@ -10,7 +11,7 @@ import bg.poet.PoetAbstract;
 import bg.poet.PoetEnumMap;
 
 /**
- * @author c82bgui
+ * @author bgui
  *
  */
 public class GeneratorMapperAbstractClass {
@@ -18,8 +19,8 @@ public class GeneratorMapperAbstractClass {
 	Class clazz1;
 
 	Class clazz2;
-	
-	File dirOut; 
+
+	File dirOut;
 
 	private final JavaPoetWriter javaPoetWriter;
 
@@ -27,18 +28,18 @@ public class GeneratorMapperAbstractClass {
 	 * @param pClazz1
 	 * @param pClazz2
 	 */
-	public GeneratorMapperAbstractClass(final Class clazz1, final Class clazz2, File dirOutPut) {
+	public GeneratorMapperAbstractClass(final File dirOutPut, final Class clazz1, final Class clazz2, final String packageRoot) {
 		javaPoetWriter = new JavaPoetWriter(dirOutPut);
-		this.dirOut =dirOutPut;
+		dirOut = dirOutPut;
 		try {
 			this.clazz1 = clazz1;
 			this.clazz2 = clazz2;
 
-			System.out.println(clazz1);
-			System.out.println(clazz2);
+			System.out.println("" + clazz1);
+			System.out.println("" + clazz2);
 			final List<Class> listSubClass1 = UtilReflection.getSubClasses(clazz1);
-			final List<Class> listSubClass2 = UtilReflection.getSubClasses(clazz2);
-			System.out.println("subClass1   nb de classes in folder: " + listSubClass1.size()+" : "+listSubClass2.size());
+			final List<Class> listSubClass2 = UtilReflection.getClassesFromPackage(clazz2, packageRoot);
+			System.out.println("subClass1   nb de classes in folder: " + listSubClass1.size() + " : " + listSubClass2.size());
 			processListSubClass(listSubClass1, listSubClass2);
 		} catch (final Exception e) {
 			// TODO Auto-generated catch block
@@ -51,10 +52,15 @@ public class GeneratorMapperAbstractClass {
 	 * @param pListSubClass1
 	 * @param pListSubClass2
 	 */
-	private void processListSubClass(final List<Class> listSubClass1, final List<Class> listSubClass2) {
+	private void processListSubClass(final List<Class> listSubClass1, final List<Class> listSubClasses2) {
 		for (final Class c1 : listSubClass1) {
-			final Class c2 = getClassFromList(c1.getSimpleName(), listSubClass2);
-			processClass(c1, c2);
+			final Class c2 = getClassFromSimpleList(c1.getSimpleName(), listSubClasses2);
+			if (c1.getSimpleName().equals("package-info")) {
+			} else if (c2 == null) {
+				System.err.println("No class pair for c1: " + c1.getName() + "   " + c1.getName());
+			} else {
+				processClass(c1, c2);
+			}
 		}
 		processCustomMapper();
 		processAbstractMapper();
@@ -73,7 +79,7 @@ public class GeneratorMapperAbstractClass {
 	}
 
 	private void processCustomMapper() {
-		for (PoetEnumMap pem : factoryPoet.getListJavaFileCustomMapper()) {
+		for (final PoetEnumMap pem : factoryPoet.getListJavaFileCustomMapper()) {
 			final JavaFile javafile = pem.getJavaFile();
 			javaPoetWriter.write(javafile);
 			System.out.println("writen custom : " + javaPoetWriter.getDir().exists() + " " + javaPoetWriter.getDir().getName());
@@ -82,10 +88,10 @@ public class GeneratorMapperAbstractClass {
 
 	private void processAbstractMapper() {
 		System.out.println("writen custom abstract size " + factoryPoet.getListPoetAbstract().size());
-		for (PoetAbstract pa : factoryPoet.getListPoetAbstract()) {
+		for (final PoetAbstract pa : factoryPoet.getListPoetAbstract()) {
 			final JavaFile javafile = pa.getJavaFile();
 			javaPoetWriter.write(javafile);
-			System.out.println("writen abstract custom : " + javaPoetWriter.getDir().exists() + " " + javaPoetWriter.getDir().getName()+"  "+pa.getName());
+			System.out.println("writen abstract custom : " + javaPoetWriter.getDir().exists() + " " + javaPoetWriter.getDir().getName() + "  " + pa.getName());
 		}
 	}
 
@@ -94,13 +100,14 @@ public class GeneratorMapperAbstractClass {
 	 * @param pListSubClass2
 	 * @return
 	 */
-	private Class getClassFromList(final String simpleName, final List<Class> listSubClass2) {
+	private Class getClassFromSimpleList(final String simpleName, final List<Class> listSubClass2) {
 		for (final Class c : listSubClass2) {
 			if (c.getSimpleName().equals(simpleName)) {
 				return c;
 			}
 		}
 		return null;
+
 	}
 
 }

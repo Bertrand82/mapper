@@ -1,3 +1,4 @@
+
 package bg.poet;
 
 import java.lang.reflect.Field;
@@ -10,18 +11,18 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-
 public class PoetEnumMap {
+
 	Field field;
 
 	Class clazzEnum;
 
 	Class clazzB;
 
-	public PoetEnumMap(Field field, Class clazzA, Class clazzB) {
+	public PoetEnumMap(final Field field, final Class clazzA, final Class clazzB) {
 		super();
 		this.field = field;
-		this.clazzEnum = clazzA;
+		clazzEnum = clazzA;
 		this.clazzB = clazzB;
 	}
 
@@ -35,43 +36,33 @@ public class PoetEnumMap {
 	}
 
 	public JavaFile getJavaFile() {
-		MethodSpec method1 = MethodSpec.methodBuilder("as" + clazzEnum.getSimpleName())
-				.addParameter(clazzB, "s")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(clazzEnum)
-            	.addStatement("return $T.valueOf(\"\"+s)",clazzEnum)
-				.build();
-		MethodSpec.Builder method2b =MethodSpec.methodBuilder("as" + clazzB.getSimpleName())
-				.addParameter(clazzEnum, "enumP")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(clazzB);
-		if(clazzB.isEnum()) {
-			method2b.addStatement("return $T.valueOf(enumP.name())",clazzB);
-		}else {
-				method2b.addStatement("return enumP.name()");
-		}		
-				MethodSpec method2 =method2b.build();
-		TypeSpec customClassMapper = 
-				TypeSpec.classBuilder(getClassMapperName())
-				.addModifiers(Modifier.PUBLIC)
-				.addMethod(method1)
-				.addMethod(method2)
-				.build();
+		final MethodSpec method1 = MethodSpec.methodBuilder("as" + clazzEnum.getSimpleName()).addParameter(clazzB, "s").addModifiers(Modifier.PUBLIC).returns(clazzEnum).addStatement("return $T.valueOf(\"\"+s)", clazzEnum).build();
+		final MethodSpec.Builder method2b = MethodSpec.methodBuilder("as" + clazzB.getSimpleName()).addParameter(clazzEnum, "enumP").addModifiers(Modifier.PUBLIC).returns(clazzB);
+		if (clazzB.isEnum()) {
+			method2b.addStatement("return $T.valueOf(enumP.name())", clazzB);
+		} else {
+			method2b.addStatement("return enumP.name()");
+		}
+		final MethodSpec method2 = method2b.build();
+		final TypeSpec customClassMapper = TypeSpec.classBuilder(getClassMapperName()).addModifiers(Modifier.PUBLIC).addMethod(method1).addMethod(method2).build();
 		final JavaFile javaFile = JavaFile.builder("com.bg.generted", customClassMapper).indent("    ").build();
 		return javaFile;
 	}
 
-	private String getNameClassEnum(Class clazzEnum2) {
-		System.out.println("getNameClassEnum "+clazzEnum2.isMemberClass()+" "+clazzEnum2.getName());
-		/*if (clazzEnum2.isMemberClass()) {
-			return clazzEnum2.getEnclosingClass().getSimpleName()+"."+clazzEnum2.getSimpleName();
-			
-		}*/
+	private String getNameClassEnum(final Class clazzEnum2) {
+		System.out.println("getNameClassEnum " + clazzEnum2.isMemberClass() + " " + clazzEnum2.getName());
+		/*
+		 * if (clazzEnum2.isMemberClass()) { return
+		 * clazzEnum2.getEnclosingClass().getSimpleName()+"."+clazzEnum2.getSimpleName()
+		 * ;
+		 *
+		 * }
+		 */
 		return clazzEnum2.getName();
 	}
 
-	public boolean isInside(List<PoetEnumMap> list) {
-		for (PoetEnumMap poe : list) {
+	public boolean isInside(final List<PoetEnumMap> list) {
+		for (final PoetEnumMap poe : list) {
 			if (equals2(poe)) {
 				return true;
 			}
@@ -79,7 +70,7 @@ public class PoetEnumMap {
 		return false;
 	}
 
-	private boolean equals2(PoetEnumMap poe) {
+	private boolean equals2(final PoetEnumMap poe) {
 		if (poe == null) {
 			return false;
 		}
@@ -87,25 +78,25 @@ public class PoetEnumMap {
 
 	}
 
-	public static String getNameClasses(List<PoetEnumMap>... lists) {
-		List<PoetEnumMap> list = new ArrayList<PoetEnumMap>();
-		for (List<PoetEnumMap> l : lists) {
+	public static String getNameClasses(final List<PoetEnumMap>... lists) {
+		final List<PoetEnumMap> list = new ArrayList<PoetEnumMap>();
+		for (final List<PoetEnumMap> l : lists) {
 			list.addAll(l);
 		}
-		List<PoetEnumMap> list0 = consolideListEnum(list);
+		final List<PoetEnumMap> list0 = consolideListEnum(list);
 		String s = "";
-		for (PoetEnumMap poe : list0) {
+		for (final PoetEnumMap poe : list0) {
 			if (!s.isEmpty()) {
-				s +=",";
+				s += ",";
 			}
 			s += poe.getClassMapperName() + ".class";
 		}
 		return s;
 	}
 
-	private static List<PoetEnumMap> consolideListEnum(List<PoetEnumMap> listEnumMapper) {
-		List<PoetEnumMap> list = new ArrayList<>();
-		for (PoetEnumMap poe : listEnumMapper) {
+	private static List<PoetEnumMap> consolideListEnum(final List<PoetEnumMap> listEnumMapper) {
+		final List<PoetEnumMap> list = new ArrayList<>();
+		for (final PoetEnumMap poe : listEnumMapper) {
 			if (!poe.isInside(list)) {
 				list.add(poe);
 			}
