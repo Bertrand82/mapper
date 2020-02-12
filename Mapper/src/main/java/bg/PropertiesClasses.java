@@ -13,8 +13,7 @@ public class PropertiesClasses {
 
 	public static Properties pClasses = new Properties();
 	static {
-		pClasses.setProperty("fr.msa.atom.sante.prestationsennature.facturepn.objets.individusanteatom.v1.Assureur", "fr.atom.referentiel.assurance.domain.assureur.Assureur");
-		pClasses.setProperty("fr.msa.atom.sante.prestationsennature.facturepn.objets.individusanteatom.v1.SoinsPlanifies", "fr.atom.sante.relationsassure.contratassurance.domain.contratassurance.SoinsPlanifies");
+		pClasses.setProperty("fr.v1.Voiture", "usa.v1.Car");
 	}
 
 	static Class getClassesPair(final String className) {
