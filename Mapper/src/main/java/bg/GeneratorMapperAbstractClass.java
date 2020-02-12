@@ -16,11 +16,12 @@ import bg.poet.PoetEnumMap;
  */
 public class GeneratorMapperAbstractClass {
 
-	Class clazz1;
+	private String packageName1;
 
-	Class clazz2;
+	private String packageName2;
+;
 
-	File dirOut;
+	private File dirOut;
 
 	private final JavaPoetWriter javaPoetWriter;
 
@@ -28,17 +29,17 @@ public class GeneratorMapperAbstractClass {
 	 * @param pClazz1
 	 * @param pClazz2
 	 */
-	public GeneratorMapperAbstractClass(final File dirOutPut, final Class clazz1, final Class clazz2, final String packageRoot) {
+	public GeneratorMapperAbstractClass(final File dirOutPut, String packageName1 ,  String packageName2 ) {
 		javaPoetWriter = new JavaPoetWriter(dirOutPut);
 		dirOut = dirOutPut;
 		try {
-			this.clazz1 = clazz1;
-			this.clazz2 = clazz2;
+			this.packageName1 = packageName1;
+			this.packageName2 = packageName2;
 
-			System.out.println("" + clazz1);
-			System.out.println("" + clazz2);
-			final List<Class> listSubClass1 = UtilReflection.getSubClasses(clazz1);
-			final List<Class> listSubClass2 = UtilReflection.getClassesFromPackage(clazz2, packageRoot);
+			System.out.println("" + packageName1);
+			System.out.println("" + packageName1);
+			final List<Class> listSubClass1 = UtilReflection.getSubClasses(packageName1);
+			final List<Class> listSubClass2 = UtilReflection.getClassesFromPackage(packageName1, packageRoot);
 			System.out.println("subClass1   nb de classes in folder: " + listSubClass1.size() + " : " + listSubClass2.size());
 			processListSubClass(listSubClass1, listSubClass2);
 		} catch (final Exception e) {

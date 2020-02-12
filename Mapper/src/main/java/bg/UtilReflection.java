@@ -15,16 +15,15 @@ import java.util.jar.JarFile;
 public class UtilReflection {
 
 	/**
+	 * Cette methode return toutes les class presente dans un package
+	 * 
 	 * @param pClazz1
 	 * @return
 	 */
-	public static List<Class> getSubClasses(final Class clazz1) {
+	public static List<Class> getSubClasses(final String  packageName) {
 		final List<Class> listClasses = new ArrayList<>();
-		final Package package1 = clazz1.getPackage();
-		System.err.println("getSubClasses " + clazz1);
-		final String packageName = package1.getName();
-		System.err.println("getSubClasses " + package1.getName());
-
+		System.err.println("getSubClasses " + packageName);
+		
 		// System.err.println("java.class.path : " +
 		// System.getProperty("java.class.path"));
 		final String javaClassPaths[] = System.getProperty("java.class.path").split(";");
@@ -33,14 +32,14 @@ public class UtilReflection {
 				// processJarFile(s, clazz1);
 			} else {
 				final File dirClasses = new File(s);
-				final File dirPackage = new File(dirClasses, getPackagePath(clazz1));
+				final File dirPackage = new File(dirClasses, packageToPath(packageName));
 				if (dirPackage.exists()) {
 					final String[] names = dirPackage.list();
 					for (final String name : names) {
 
 						if ((name.indexOf("$") < 0) && (name.indexOf(".class") > 0)) {
 							final String sName = name.substring(0, name.indexOf("."));
-							final String className = clazz1.getPackage().getName() + "." + sName;
+							final String className = packageName + "." + sName;
 
 							try {
 								final Class clazz = UtilReflection.class.getClassLoader().loadClass(className);
@@ -58,37 +57,7 @@ public class UtilReflection {
 		return listClasses;
 	}
 
-	/**
-	 * @param pJarFile
-	 */
-	private static void processJarFile(final String s, final Class clazz) {
-		try {
-			final JarFile jarFile = new JarFile(s);
-			final JarEntry jarEntryClazz = jarFile.getJarEntry(clazz.getName().replaceAll(".", "/") + ".class");
-			if (jarEntryClazz != null) {
-				System.err.println("BINGO BINGO " + jarFile.getName());
-			}
-			final Enumeration<JarEntry> entries = jarFile.entries(); // gives ALL entries in jar
-			while (entries.hasMoreElements()) {
-				final String name = entries.nextElement().getName();
-				final String packageName = getPackagePath(clazz);
-				if (name.startsWith(packageName)) { // filter according to the path
-					System.err.println("YYYYYYYYYYYYYYYYES :" + name + "   " + jarFile.getName());
-				}
-			}
-			jarFile.close();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	private static String getPackagePath(final Class clazz) {
-		final String packageName = clazz.getPackage().getName();
-		final String path = packageToPath(packageName);
-		return path;
-	}
+	
 
 	private static String packageToPath(final String packageName) {
 		return packageName.replaceAll("\\.", "/");
@@ -96,7 +65,7 @@ public class UtilReflection {
 
 	public static List<Class> getClassesChildreen(final Class clazz) {
 		final List<Class> list = new ArrayList<>();
-		final List<Class> listAll = getSubClasses(clazz);
+		final List<Class> listAll = getSubClasses(clazz.getPackage().getName());
 		for (final Class c : listAll) {
 			if (clazz.equals(c)) {
 			} else if (clazz.isAssignableFrom(c)) {
@@ -106,23 +75,17 @@ public class UtilReflection {
 		return list;
 	}
 
-	public static File getClassPath(final Class clazz1) {
+	public static File getClassPath(final String packageName) {
 
-		final List<Class> listClasses = new ArrayList<>();
-		final Package package1 = clazz1.getPackage();
-		System.err.println("getSubClasses " + clazz1);
-		final String packageName = package1.getName();
-		System.err.println("getSubClasses " + package1.getName());
+		System.err.println("getClassPath " + packageName);
 
-		// System.err.println("java.class.path : " +
-		// System.getProperty("java.class.path"));
 		final String javaClassPaths[] = System.getProperty("java.class.path").split(";");
 		for (final String s : javaClassPaths) {
 			if (s.endsWith(".jar")) {
 				// processJarFile(s, clazz1);
 			} else {
 				final File dirClasses = new File(s);
-				final File dirPackage = new File(dirClasses, getPackagePath(clazz1));
+				final File dirPackage = new File(dirClasses, packageToPath(packageName));
 				if (dirPackage.exists()) {
 					return dirClasses;
 				}
@@ -140,11 +103,11 @@ public class UtilReflection {
 	 * @param packageName
 	 * @return
 	 */
-	public static List<Class> getClassesFromPackage(final Class clazz, final String packageName) {
+	public static List<Class> getClassesFromPackage(final String packageName) {
 
-		final File dirPath = getClassPath(clazz);
-		final File dirPackage = new File(dirPath, packageToPath(packageName));
-		return getClassesFromDir(dirPackage, packageName);
+		final File dirPath = getClassPath(packageName);
+		File dirPackage = new File(dirPath,packageToPath(packageName));
+		return getClassesFromDir_(dirPackage, packageName);
 
 	}
 
@@ -153,9 +116,9 @@ public class UtilReflection {
 	 * @param pDirPackage
 	 * @return
 	 */
-	private static List<Class> getClassesFromDir(final File dirPackage, final String packageName) {
+	private static List<Class> getClassesFromDir_(final File dirPackage, final String packageName) {
 		final List<Class> listClasses = new ArrayList<>();
-		System.out.println("DirPackage " + dirPackage.getAbsolutePath() + " isDirectory " + dirPackage.isDirectory());
+		System.err.println("DirPackageAAAAA " + dirPackage.getAbsolutePath() + "| isDirectory " + dirPackage.isDirectory()+" | packageName " +packageName);
 		if (dirPackage.exists()) {
 			final String[] names = dirPackage.list();
 			for (final String name : names) {
@@ -163,7 +126,7 @@ public class UtilReflection {
 				if ((name.indexOf("$") < 0) && (name.indexOf(".class") > 0)) {
 					final String sName = name.substring(0, name.indexOf("."));
 					final String className = packageName + "." + sName;
-					System.err.println("className: " + className + " -------------- " + packageName);
+					System.err.println("classNameA: " + className +" xxxxxx sName :"+sName +" -------------- packageName :" + packageName);
 					try {
 						final Class clazz = UtilReflection.class.getClassLoader().loadClass(className);
 						listClasses.add(clazz);
@@ -175,7 +138,7 @@ public class UtilReflection {
 		}
 		for (final File child : dirPackage.listFiles()) {
 			if (child.isDirectory()) {
-				final List<Class> l = getClassesFromDir(child, packageName + "." + child.getName());
+				final List<Class> l = getClassesFromDir_(child, packageName + "." + child.getName());
 				listClasses.addAll(l);
 			}
 		}
@@ -183,10 +146,11 @@ public class UtilReflection {
 	}
 
 	public static void main(final String[] s) {
-		final Class clazz = UtilReflection.class;
-		final List<Class> list = getClassesFromPackage(clazz, "bg");
+		
+		final List<Class> list = getClassesFromPackage("bg");
+		System.out.println("list result "+list.size());
 		for (final Class c : list) {
-			System.out.println(c.getName());
+			System.out.println("Result : "+c.getName());
 		}
 
 	}
